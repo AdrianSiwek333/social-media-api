@@ -24,10 +24,9 @@ public class Follow {
     public Follow() {
     }
 
-    public Follow(Users follower, Users followed, LocalDateTime createdAt) {
+    public Follow(Users follower, Users followed) {
         this.follower = follower;
         this.followed = followed;
-        this.createdAt = createdAt;
     }
 
     public Users getFollower() {

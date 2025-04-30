@@ -3,8 +3,11 @@ package com.example.twitterLike.model;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
+@Inheritance(strategy = InheritanceType.JOINED)
 @Table(name = "post")
 public class Post {
 
@@ -15,19 +18,25 @@ public class Post {
     @Column(length = 255, nullable = false)
     private String content;
 
+    @OneToMany(mappedBy = "parentPost", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Comment> childComments = new ArrayList<>();
+
     private LocalDateTime createdAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "author_id", nullable = false)
     private Users author;
 
+    @PrePersist
+    protected void onCreate() {
+        createdAt = LocalDateTime.now();
+    }
+
     public Post() {
     }
 
-    public Post(Long postId, String content, LocalDateTime createdAt, Users author) {
-        this.postId = postId;
+    public Post(String content, Users author) {
         this.content = content;
-        this.createdAt = createdAt;
         this.author = author;
     }
 
@@ -62,4 +71,13 @@ public class Post {
     public void setAuthor(Users author) {
         this.author = author;
     }
+
+    public List<Comment> getChildComments() {
+        return childComments;
+    }
+
+    public void setChildComments(List<Comment> childComments) {
+        this.childComments = childComments;
+    }
+
 }
