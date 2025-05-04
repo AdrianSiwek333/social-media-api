@@ -18,7 +18,7 @@ public class Post {
     @Column(length = 255, nullable = false)
     private String content;
 
-    @OneToMany(mappedBy = "parentPost", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "parentPost", cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH})
     private List<Comment> childComments = new ArrayList<>();
 
     private LocalDateTime createdAt;

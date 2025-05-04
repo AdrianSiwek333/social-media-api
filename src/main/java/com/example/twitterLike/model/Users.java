@@ -10,10 +10,10 @@ public class Users {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column()
+    @Column(unique = true, nullable = false)
     private String username;
 
-    @Column
+    @Column(unique = true, nullable = false)
     private String password;
 
     @Column
