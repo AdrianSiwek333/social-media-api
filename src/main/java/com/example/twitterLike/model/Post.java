@@ -1,5 +1,6 @@
 package com.example.twitterLike.model;
 
+import com.example.twitterLike.dto.CommentDto;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
@@ -18,12 +19,13 @@ public class Post {
     @Column(length = 255, nullable = false)
     private String content;
 
-    @OneToMany(mappedBy = "parentPost", cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH})
+    @OneToMany(mappedBy = "parentPost", cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH},
+            fetch = FetchType.LAZY)
     private List<Comment> childComments = new ArrayList<>();
 
     private LocalDateTime createdAt;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "author_id", nullable = false)
     private Users author;
 
@@ -78,6 +80,15 @@ public class Post {
 
     public void setChildComments(List<Comment> childComments) {
         this.childComments = childComments;
+    }
+
+    public List<CommentDto> getChildCommentsDto() {
+        List<CommentDto> commentDto = new ArrayList<>();
+        for (Comment comment : childComments) {
+            commentDto.add(new CommentDto(comment.getPostId(), comment.getContent(),
+                    comment.getAuthor().getUsername(), comment.getCreatedAt()));
+        }
+        return commentDto;
     }
 
 }

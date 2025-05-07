@@ -17,6 +17,10 @@ public class Comment extends Post {
         this.parentPost = parentPost;
     }
 
+    public Comment(String content, Users author) {
+        super(content, author);
+    }
+
     public Post getParentPost() {
         return parentPost;
     }
