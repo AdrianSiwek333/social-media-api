@@ -1,6 +1,9 @@
 package com.example.twitterLike.controller.api;
 
+import com.example.twitterLike.model.ERole;
+import com.example.twitterLike.model.Role;
 import com.example.twitterLike.model.Users;
+import com.example.twitterLike.repository.RoleRepository;
 import com.example.twitterLike.repository.UsersRepository;
 import com.example.twitterLike.security.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +25,8 @@ public class AuthController {
     AuthenticationManager authenticationManager;
     @Autowired
     UsersRepository usersRepository;
+    @Autowired
+    RoleRepository roleRepository;
     @Autowired
     PasswordEncoder passwordEncoder;
     @Autowired
@@ -54,11 +59,20 @@ public class AuthController {
             return "Error: Username is already taken!";
         }
 
+        if (usersRepository.existsByEmail(user.getEmail())) {
+            return "Error: Email is already in use!";
+        }
+
+        Role userRole = roleRepository.findByName(ERole.ROLE_USER)
+                .orElseThrow(() -> new RuntimeException("Error: Role not found."));
+        user.getRoles().add(userRole);
+
         Users newUser = new Users(
                 null,
                 user.getUsername(),
                 passwordEncoder.encode(user.getPassword()),
-                user.getEmail()
+                user.getEmail(),
+                user.getRoles()
         );
         usersRepository.save(newUser);
         return "User registered successfully!";
