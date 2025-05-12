@@ -6,6 +6,7 @@ import com.example.twitterLike.mapper.CommentMapper;
 import com.example.twitterLike.model.Comment;
 import com.example.twitterLike.repository.CommentRepository;
 import com.example.twitterLike.repository.PostRepository;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -40,12 +41,15 @@ public class CommentService {
         );
     }
 
-    public List<CommentDto> getCommentsByPostId(Long postId) {
-        return commentMapper.mapToCommentDtoList(
-                commentRepository.findByParentPost(postRepository.findById(
-                        postId).orElseThrow(
-                                () -> new PostNotFoundException("Post not found")
-                ))
-        );
+    public List<CommentDto> getCommentsByPostId(Long postId, int page, int size) {
+
+        if (postId == null) {
+            throw new IllegalArgumentException("Post ID cannot be null");
+        }
+
+        return commentMapper.mapToCommentDtoList(commentRepository.findByParentPost(
+                postRepository.findById(postId).orElseThrow(
+                        () -> new PostNotFoundException("Post not found")),
+                PageRequest.of(page, size)).getContent());
     }
 }

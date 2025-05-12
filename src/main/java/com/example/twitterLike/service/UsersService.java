@@ -6,6 +6,10 @@ import com.example.twitterLike.repository.CommentRepository;
 import com.example.twitterLike.repository.PostRepository;
 import com.example.twitterLike.repository.UsersRepository;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -52,6 +56,18 @@ public class UsersService {
                 .toList();
     }
 
+    public List<UserDto> findAllUsersPaginated(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Users> usersPage = usersRepository.findAll(pageable);
+        return usersPage.getContent()
+                .stream()
+                .map(user -> new UserDto(
+                        user.getId(),
+                        user.getUsername()
+                ))
+                .toList();
+    }
+
     public void saveUser(Users user) {
         try {
             usersRepository.save(user);
@@ -72,5 +88,10 @@ public class UsersService {
         postRepository.deleteAllByAuthor(user);
         commentRepository.deleteAllByAuthor(user);
         usersRepository.deleteById(userId);
+    }
+
+    public Users findUserByEmail(String email) {
+        return usersRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
     }
 }

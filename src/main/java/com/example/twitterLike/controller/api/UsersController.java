@@ -20,22 +20,14 @@ public class UsersController {
     }
 
     @GetMapping("/all")
-    public List<UserDto> getAllUsers() {
-        return usersService.findAllUsers();
+    public List<UserDto> getAllUsers(@RequestParam(defaultValue = "0") int page,
+                                      @RequestParam(defaultValue = "10") int size) {
+        return usersService.findAllUsersPaginated(page, size);
     }
 
     @GetMapping("/{userId}")
     public UserDto getUserById(@PathVariable Long userId) {
         return usersService.findUserById(userId);
-    }
-
-    @PostMapping("/add")
-    public void addUser(@Valid @RequestBody UserCreateDto userCreateDto) {
-        Users user = new Users();
-        user.setUsername(userCreateDto.getUsername());
-        user.setPassword(userCreateDto.getPassword());
-        user.setEmail(userCreateDto.getEmail());
-        usersService.saveUser(user);
     }
 
     @DeleteMapping("/{userId}")

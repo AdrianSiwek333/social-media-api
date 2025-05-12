@@ -5,7 +5,9 @@ import com.example.twitterLike.exception.PostNotFoundException;
 import com.example.twitterLike.mapper.PostMapper;
 import com.example.twitterLike.model.Post;
 import com.example.twitterLike.repository.PostRepository;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
@@ -40,7 +42,10 @@ public class PostService {
         );
     }
 
-    public List<PostDto> findAllPosts() {
-        return postMapper.mapToPostDtoList(postRepository.findAll());
+    public List<PostDto> findAllPosts(int page, int size) {
+        return postRepository.findAll(PageRequest.of(page, size)).getContent()
+                .stream()
+                .map(postMapper::mapToPostDto)
+                .toList();
     }
 }

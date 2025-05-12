@@ -1,7 +1,6 @@
 package com.example.twitterLike.security;
 
 import com.example.twitterLike.service.CustomUserDetailsService;
-import io.jsonwebtoken.Jwt;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -24,6 +23,12 @@ public class AuthTokenFilter extends OncePerRequestFilter {
 
     @Autowired
     private CustomUserDetailsService userDetailsService;
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+        String path = request.getRequestURI();
+        return path.equals("/api/auth/signup") || path.equals("/api/auth/signin");
+    }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,

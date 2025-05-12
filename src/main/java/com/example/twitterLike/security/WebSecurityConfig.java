@@ -20,7 +20,9 @@ public class WebSecurityConfig{
 
     private String[] paths = {
             "/api/auth/**",
-            "/api/test/**"
+            "/api/test/**",
+            "/api/auth/signup",
+            "/error"
     };
 
     @Autowired
@@ -46,8 +48,13 @@ public class WebSecurityConfig{
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+                .authorizeHttpRequests(authorizeRequests ->
+                        authorizeRequests
+                                .requestMatchers(paths).permitAll()
+                                .anyRequest().authenticated()
+                )
                 .csrf(csrf -> csrf.disable())
                 .cors(cors -> cors.disable())
                 .exceptionHandling(exceptionHandling ->
@@ -56,11 +63,7 @@ public class WebSecurityConfig{
                 .sessionManagement(sessionManagement ->
                         sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
-                .authorizeHttpRequests(authorizeRequests ->
-                        authorizeRequests
-                                .requestMatchers(paths).permitAll()
-                                .anyRequest().authenticated()
-                );
+;
         http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }

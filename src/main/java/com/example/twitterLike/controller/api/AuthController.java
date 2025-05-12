@@ -1,80 +1,63 @@
 package com.example.twitterLike.controller.api;
 
+import com.example.twitterLike.dto.UserCreateDto;
 import com.example.twitterLike.model.ERole;
 import com.example.twitterLike.model.Role;
 import com.example.twitterLike.model.Users;
-import com.example.twitterLike.repository.RoleRepository;
-import com.example.twitterLike.repository.UsersRepository;
-import com.example.twitterLike.security.JwtUtil;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
+import com.example.twitterLike.service.AuthService;
+import com.example.twitterLike.service.RoleService;
+import com.example.twitterLike.service.UsersService;
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+
+import java.util.Set;
 
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
 
-    @Autowired
-    AuthenticationManager authenticationManager;
-    @Autowired
-    UsersRepository usersRepository;
-    @Autowired
-    RoleRepository roleRepository;
-    @Autowired
+    UsersService usersService;
     PasswordEncoder passwordEncoder;
-    @Autowired
-    JwtUtil jwtUtil;
+    AuthService authService;
+    RoleService roleService;
+
+    public AuthController(UsersService usersService, PasswordEncoder passwordEncoder, AuthService authService, RoleService roleService) {
+        this.usersService = usersService;
+        this.passwordEncoder = passwordEncoder;
+        this.authService = authService;
+        this.roleService = roleService;
+    }
 
     @PostMapping("/signin")
     public String authenticateUser(@RequestBody Users user) {
+
         String login = user.getUsername();
-        String username;
+        String username = login.contains("@")
+                ? usersService.findUserByEmail(login).getUsername()
+                : login;
 
-        if(login.contains("@")) {
-            username = usersRepository.findByEmail(login).get().getUsername();
-        } else {
-            username = login;
-        }
-
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        username,
-                        user.getPassword()
-                )
-        );
-        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        return jwtUtil.generateToken(userDetails.getUsername());
+        return authService.authenticate(username, user.getPassword());
     }
 
     @PostMapping("/signup")
-    public String registerUser(@RequestBody Users user) {
-        if (usersRepository.existsByUsername(user.getUsername())) {
-            return "Error: Username is already taken!";
-        }
-
-        if (usersRepository.existsByEmail(user.getEmail())) {
-            return "Error: Email is already in use!";
-        }
-
-        Role userRole = roleRepository.findByName(ERole.ROLE_USER)
-                .orElseThrow(() -> new RuntimeException("Error: Role not found."));
-        user.getRoles().add(userRole);
+    public ResponseEntity<String> registerUser(@Valid @RequestBody UserCreateDto user) {
+        Role userRole = roleService.findByName(ERole.ROLE_USER);
 
         Users newUser = new Users(
                 null,
                 user.getUsername(),
                 passwordEncoder.encode(user.getPassword()),
                 user.getEmail(),
-                user.getRoles()
+                Set.of(userRole)
         );
-        usersRepository.save(newUser);
-        return "User registered successfully!";
+
+        usersService.saveUser(newUser);
+        return ResponseEntity.status(HttpStatus.CREATED).body("User registered successfully!");
     }
 }

@@ -32,8 +32,9 @@ public class CommentController {
     }
 
     @GetMapping("/{postId}/comments")
-    public List<CommentDto> getCommentsByPostId(@PathVariable Long postId) {
-        return commentService.getCommentsByPostId(postId);
+    public List<CommentDto> getCommentsByPostId(@PathVariable Long postId, @RequestParam(defaultValue = "0") int page,
+                                                @RequestParam(defaultValue = "10") int size) {
+        return commentService.getCommentsByPostId(postId, page, size);
     }
 
     @PostMapping("/{postId}/addComment")
