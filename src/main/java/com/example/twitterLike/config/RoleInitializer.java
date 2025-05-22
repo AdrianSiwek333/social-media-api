@@ -1,3 +1,4 @@
+/*
 package com.example.twitterLike.config;
 
 import com.example.twitterLike.model.ERole;
@@ -24,3 +25,4 @@ public class RoleInitializer implements CommandLineRunner {
         }
     }
 }
+*/

@@ -9,6 +9,9 @@ public class PostDto {
     private String username;
     private LocalDateTime createdAt;
 
+    public PostDto() {
+    }
+
     public PostDto(Long postId, String content, String username, LocalDateTime createdAt) {
         this.postId = postId;
         this.content = content;

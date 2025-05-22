@@ -20,9 +20,13 @@ public class WebSecurityConfig{
 
     private String[] paths = {
             "/api/auth/**",
-            "/api/test/**",
+
             "/api/auth/signup",
             "/error"
+    };
+
+    private String[] adminPaths = {
+            "/api/test/**"
     };
 
     @Autowired
@@ -53,6 +57,7 @@ public class WebSecurityConfig{
                 .authorizeHttpRequests(authorizeRequests ->
                         authorizeRequests
                                 .requestMatchers(paths).permitAll()
+                                .requestMatchers(adminPaths).hasAnyAuthority("ROLE_ADMIN")
                                 .anyRequest().authenticated()
                 )
                 .csrf(csrf -> csrf.disable())

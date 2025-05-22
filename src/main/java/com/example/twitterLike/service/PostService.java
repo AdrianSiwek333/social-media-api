@@ -7,7 +7,6 @@ import com.example.twitterLike.model.Post;
 import com.example.twitterLike.repository.PostRepository;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
@@ -22,8 +21,9 @@ public class PostService {
         this.postMapper = postMapper;
     }
 
-    public void addPost(Post post) {
+    public PostDto addPost(Post post) {
         postRepository.save(post);
+        return postMapper.mapToPostDto(post);
     }
 
     public void removePost(Post post) {

@@ -9,6 +9,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
@@ -93,5 +94,10 @@ public class UsersService {
     public Users findUserByEmail(String email) {
         return usersRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+    }
+
+    public boolean isAuthenticatedUserOwner(Users user) {
+        String authenticatedUsername = SecurityContextHolder.getContext().getAuthentication().getName();
+        return authenticatedUsername != null && authenticatedUsername.equals(user.getUsername());
     }
 }

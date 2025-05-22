@@ -39,8 +39,7 @@ public class UsersController {
         usersService.deleteUser(userId);
     }
 
-    // To do: Implement authentication and authorization
     private boolean isCurrentUserOwner(Users user) {
-        return true; // Placeholder for actual authentication logic
+        return usersService.isAuthenticatedUserOwner(user);
     }
 }
